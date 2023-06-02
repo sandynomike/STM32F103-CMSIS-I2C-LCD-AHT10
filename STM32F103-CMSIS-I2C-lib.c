@@ -22,6 +22,7 @@
 //    Send out the address of the desired I2C target and wait for the target
 //    to acknowledge that the address was received. Note that the routine will
 //    hang if no target device acknowledges the address.
+//    readBit = 0 indicates a write request, readBit = 1 indicates a read request.
 // -----------------------------------------
 // void
 // I2C_write( I2C_TypeDef *thisI2C, uint8_t data )
@@ -97,8 +98,8 @@ I2C_init( I2C_TypeDef *thisI2C )
 void
 I2C_start( I2C_TypeDef *thisI2C )
 {
-  // Set START bit in CR1 which initializes I2C sequence and cause the I2C interface to enter master mode.
-  thisI2C->CR1 |= I2C_CR1_START;
+  // Set START and ACK bits in CR1 which initializes I2C sequence and cause the I2C interface to enter master mode.
+  thisI2C->CR1 |= I2C_CR1_START | I2C_CR1_ACK;
   
   // Wait for SB bit in SR1 to be set indicating start occurred [EV5:1]
   while( !( thisI2C->SR1 & I2C_SR1_SB )) ;
@@ -107,7 +108,8 @@ I2C_start( I2C_TypeDef *thisI2C )
 
 // I2C_address
 // Command for host to send the I2C address of the desired target device. Waits for target to acknowledge.
-// Note -- will hang if no target acknowledges the sent address.
+// Note -- will hang if no target acknowledges the sent address. Set readBit to 1 for a read command, or leave
+// as 0 for a write command.
 void
 I2C_address( I2C_TypeDef *thisI2C, uint8_t address, uint8_t readBit )
 {
@@ -181,11 +183,32 @@ I2C_writeByte( I2C_TypeDef *thisI2C, uint8_t data, uint8_t Address )
 }
 
 
-/*
+
+// I2C_read
+// Command for host to read a single byte. Does not include start or address or stop commands
+uint8_t
+I2C_read( I2C_TypeDef *thisI2C, uint8_t ack )
+{
+  uint8_t gotData;
+  
+  
+  while( !( thisI2C->SR1 & (I2C_SR1_RXNE) )) ;    // Wait for data to appear
+  
+  gotData = thisI2C->DR;                          // Read data
+  
+  if( ack )                                       // If ack is non-zero
+    thisI2C->CR1 |= I2C_CR1_ACK;                  // send ACK
+  else                                            // otherwise
+    thisI2C->CR1 &= ~(I2C_CR1_ACK);               // send NACK
+
+  return gotData;                                 // Return data to calling routine
+}
+
+
 // I2C_readByte
 // Command for host to request one byte from the target device at the specified address.
 void
-I2C_readByte( uint8_t *data,  uint8_t address )
+I2C_readByte( I2C_TypeDef *thisI2C, uint8_t *data,  uint8_t address )
 {
 //  I2C_start();                            // Start I2C sequence
 //  I2C_address( address, 1 );              // Poll address
@@ -194,22 +217,21 @@ I2C_readByte( uint8_t *data,  uint8_t address )
 
   // I2C_read( Address, data );
   
-  I2C1->CR1 |= I2C_CR1_START;             // Set the START bit
-  while( !( I2C1->SR1 & I2C_SR1_SB )) ;   // Wait for SB to be set
+  thisI2C->CR1 |= I2C_CR1_START;             // Set the START bit
+  while( !( thisI2C->SR1 & I2C_SR1_SB )) ;   // Wait for SB to be set
 
-  I2C1->DR = (address<<1) + 0x00;           // Send address and read-bit
+  thisI2C->DR = (address<<1) + 0x00;           // Send address and read-bit
   while( !( I2C1->SR1 & I2C_SR1_ADDR )) ; // Wait for ADDR bit to be set indicating the address was transferred
-  I2C1->CR1 &= ~(I2C_CR1_ACK);              // Clear ACK bit
-  uint8_t temp = I2C1->SR1 | I2C1->SR2;   // Read these regs to clear ADDR bit [EV6]
-  I2C1->CR1 |= I2C_CR1_STOP;              // Stop I2C
+  thisI2C->CR1 &= ~(I2C_CR1_ACK);              // Clear ACK bit
+  uint8_t temp = thisI2C->SR1 | thisI2C->SR2;   // Read these regs to clear ADDR bit [EV6]
+  thisI2C->CR1 |= I2C_CR1_STOP;              // Stop I2C
 
-  while( !( I2C1->SR1 & (I2C_SR1_RXNE) )) ; // Wait for data register to have data
+  while( !( thisI2C->SR1 & (I2C_SR1_RXNE) )) ; // Wait for data register to have data
 
-  uint8_t keep = (I2C1->DR & 0xFF);              // Read received data
-//  TIM1->CR1 = keep;
-  I2C_stop( (uint32_t)I2C1 );
+  uint8_t keep = (thisI2C->DR & 0xFF);              // Read received data
+  I2C_stop( thisI2C );
   *data = keep;
 }
-*/
+
 
 #endif /* __STM32F103_CMSIS_I2C_LIB.C */
