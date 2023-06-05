@@ -121,7 +121,7 @@ I2C_address( I2C_TypeDef *thisI2C, uint8_t address, uint8_t readBit )
   while( !( thisI2C->SR1 & I2C_SR1_ADDR )) ;
 
   // Read SR1 and SR2 to clear ADDR bit [EV6:2]
-  uint8_t temp = thisI2C->SR1 | thisI2C->SR2;
+  uint8_t temp __attribute__((unused)) = thisI2C->SR1 | thisI2C->SR2;
 }
 
 
@@ -223,7 +223,7 @@ I2C_readByte( I2C_TypeDef *thisI2C, uint8_t *data,  uint8_t address )
   thisI2C->DR = (address<<1) + 0x00;           // Send address and read-bit
   while( !( I2C1->SR1 & I2C_SR1_ADDR )) ; // Wait for ADDR bit to be set indicating the address was transferred
   thisI2C->CR1 &= ~(I2C_CR1_ACK);              // Clear ACK bit
-  uint8_t temp = thisI2C->SR1 | thisI2C->SR2;   // Read these regs to clear ADDR bit [EV6]
+  uint8_t temp __attribute__((unused)) = thisI2C->SR1 | thisI2C->SR2;   // Read these regs to clear ADDR bit [EV6]
   thisI2C->CR1 |= I2C_CR1_STOP;              // Stop I2C
 
   while( !( thisI2C->SR1 & (I2C_SR1_RXNE) )) ; // Wait for data register to have data

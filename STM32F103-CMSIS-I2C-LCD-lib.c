@@ -42,9 +42,9 @@
 //         B6 ----------- SCL
 //         B7 ----------- SDA
 //
-//                        LED Jumper -- [1k ohm] --\
+//                        LED Jumper -- [1k ohm] --,
 //                                                 |
-//                        LED Jumper --------------/
+//                        LED Jumper --------------'
 //
 //
 
