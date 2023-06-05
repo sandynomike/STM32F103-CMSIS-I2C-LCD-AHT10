@@ -9,6 +9,6 @@ Uses the following simple include libraries:
 - STM32F103-pause-lib.c          (Contains us timing routine)
 - STM32F103-CMSIS-I2C-lib.c      (Contiains root I2C routines)
 - STM32F103-CMSIS-I2C-LCD-lib.c  (Contains I2C LCD Driver Module routines)
-- STM32F103-CMSIS-I2C-LCD-AHT10-lib.c  (Contains AHT10 I2C routines to get temperature and humidity.LCD Driver Module
+- STM32F103-CMSIS-I2C-LCD-AHT10-lib.c  (Contains AHT10 I2C routines to get temperature and humidity.)
 
 See main.c for details.
