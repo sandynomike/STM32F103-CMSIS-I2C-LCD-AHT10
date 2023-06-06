@@ -81,6 +81,7 @@ AHT10_init( I2C_TypeDef *thisI2C )
   I2C_write(   AHT10_I2C, AHT10_INIT_D0 );   // 0x08: 2nd init byte to set CAL bit
   I2C_write(   AHT10_I2C, AHT10_INIT_D1 );   // 0x00: Finish command with 0-byte
   I2C_stop(    AHT10_I2C );                  // I2C stop
+delay_us(40);
 }
 
 
@@ -117,6 +118,7 @@ AHT10_readSensorData( uint8_t *data )
   data[4] = I2C_read( AHT10_I2C, 1 );       // Read Temperature [15:8], send ACK
   data[5] = I2C_read( AHT10_I2C, 0 );       // Read Temperature [7:0], send NAK
   I2C_stop( AHT10_I2C );                    // STop this transaction
+delay_us(420);
 }
 
 

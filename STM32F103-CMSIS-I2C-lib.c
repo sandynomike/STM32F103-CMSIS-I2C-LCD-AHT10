@@ -95,6 +95,7 @@ I2C_init( I2C_TypeDef *thisI2C )
 
 // I2C_start
 // Command for host to start I2C communication.
+// Waits for start bit to be set before exiting the routine.
 void
 I2C_start( I2C_TypeDef *thisI2C )
 {
@@ -109,7 +110,8 @@ I2C_start( I2C_TypeDef *thisI2C )
 // I2C_address
 // Command for host to send the I2C address of the desired target device. Waits for target to acknowledge.
 // Note -- will hang if no target acknowledges the sent address. Set readBit to 1 for a read command, or leave
-// as 0 for a write command.
+// as 0 for a write command. Will wait for the ADDR bit in the I2C SR1 register to be set before exiting the
+// routine. After confirming the ADDR bit, the bit is cleared by reading the SR1 and SR2 registers.
 void
 I2C_address( I2C_TypeDef *thisI2C, uint8_t address, uint8_t readBit )
 {
@@ -121,6 +123,8 @@ I2C_address( I2C_TypeDef *thisI2C, uint8_t address, uint8_t readBit )
   while( !( thisI2C->SR1 & I2C_SR1_ADDR )) ;
 
   // Read SR1 and SR2 to clear ADDR bit [EV6:2]
+  // Note the __attribute__((unused)) qalifier, which tells the pre-processor that we know the "temp"
+  // variable is otherwise unused, thus preventing the "unused variable" warning at compile time.
   uint8_t temp __attribute__((unused)) = thisI2C->SR1 | thisI2C->SR2;
 }
 
@@ -143,30 +147,16 @@ I2C_write( I2C_TypeDef *thisI2C, uint8_t data )
 
 
 // I2C_stop
-// Command for host to STOP current I2C transfer.
+// Command for host to STOP current I2C transfer. Waits for confirmation that the stop
+// bit was set before continuing.
 void
 I2C_stop( I2C_TypeDef *thisI2C )
 {
-  thisI2C->CR1 |= I2C_CR1_STOP;              // Set STOP bit in CR1 indicating end of I2C transmission and
-                                          // return to slave mode [EV8_2:2]
-  delay_us(20);                                          
-}
+  thisI2C->CR1 |= I2C_CR1_STOP;   // Set STOP bit in CR1 indicating end of I2C transmission and
+                                  // return to slave mode [EV8_2:2]
 
-
-/*
-void
-I2C_writeMulti( uint8_t *data, uint8_t size)
-{
-  while( !( I2C1->SR1 & I2C_SR1_TXE )) ;    // Wait for TXE bit to be set
-  while( size )
-  {
-    while ( !(I2C1->SR1 & I2C_SR1_TXE )) ;  // Wait for TXE bit to be set
-    I2C1->DR = (volatile uint32_t)*data++;  // Send data byte
-    size--;
-  }
-  while( !( I2C1->SR1 & I2C_SR1_BTF )) ;
+  while( !( thisI2C->CR1 & I2C_CR1_STOP )) ;  // Wait for stop bit to be set
 }
-*/
 
 
 // I2C_writeByte
@@ -183,14 +173,12 @@ I2C_writeByte( I2C_TypeDef *thisI2C, uint8_t data, uint8_t Address )
 }
 
 
-
 // I2C_read
 // Command for host to read a single byte. Does not include start or address or stop commands
 uint8_t
 I2C_read( I2C_TypeDef *thisI2C, uint8_t ack )
 {
   uint8_t gotData;
-  
   
   while( !( thisI2C->SR1 & (I2C_SR1_RXNE) )) ;    // Wait for data to appear
   

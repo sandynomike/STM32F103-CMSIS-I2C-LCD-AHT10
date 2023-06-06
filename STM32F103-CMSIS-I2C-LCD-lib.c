@@ -127,15 +127,12 @@ I2C_LCD_cmd( uint8_t data )
   // Place upper nibble and EN and BL and WR
   I2C_data = (data & 0b11110000) | I2C_LCD_EN | I2C_LCD_BL;
   I2C_writeByte( LCD_I2C, I2C_data, I2C_LCD_ADD );
-  
   // Clear EN bit
   I2C_data =   I2C_LCD_BL  ;
   I2C_writeByte( LCD_I2C, I2C_data, I2C_LCD_ADD );
-
   // Place lower nibble and EN and BL and WR
   I2C_data = (data << 4) | I2C_LCD_EN | I2C_LCD_BL;
   I2C_writeByte( LCD_I2C, I2C_data, I2C_LCD_ADD );
-  
   // Clear EN bit
   I2C_data =  I2C_LCD_BL  ;
   I2C_writeByte( LCD_I2C, I2C_data, I2C_LCD_ADD );
@@ -152,15 +149,12 @@ I2C_LCD_putc( char data )
   // Place upper nibble and set EN, RS, and BL bits 
   I2C_data = (data & 0b11110000) | I2C_LCD_EN | I2C_LCD_RS | I2C_LCD_BL;
   I2C_writeByte( LCD_I2C, I2C_data, I2C_LCD_ADD );
-  
   // Clear EN bit
   I2C_data =  I2C_LCD_BL | I2C_LCD_RS ;
   I2C_writeByte( LCD_I2C, I2C_data, I2C_LCD_ADD );
-
   // Place lower nibble and set EN, RS, and BL bits
   I2C_data = (data << 4) | I2C_LCD_EN | I2C_LCD_RS | I2C_LCD_BL;
   I2C_writeByte( LCD_I2C, I2C_data, I2C_LCD_ADD );
-
   // Clear EN bit
   I2C_data =  I2C_LCD_BL | I2C_LCD_RS ;
   I2C_writeByte( LCD_I2C, I2C_data, I2C_LCD_ADD );
