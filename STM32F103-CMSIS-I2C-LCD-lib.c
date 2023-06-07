@@ -56,9 +56,11 @@
 #include "stm32f103x8.h"              // Primary CMSIS header file
 #include "STM32F103-CMSIS-I2C-lib.c"
 
+I2C_TypeDef *LCD_I2C;                 // Global variable to point to the I2C interface used for
+                                      // the LCD driver.
 
-// Pin-Bit definitions between the LCD module pins and the
-// I2C LCD driver module data-byte bits.
+
+// Pin-Bit definitions between the LCD module pins and the I2C LCD driver module data-byte bits.
 
 #define I2C_LCD_ADD 0x3F
 #define I2C_LCD_RS  0b00000001
@@ -88,11 +90,11 @@
 #define I2C_LCD_4B  0x02
 
 
+
 // I2C_LCD_init
-// Initialize the LCD display module. The first step is to initialize the
-// associated I2C port. Then there is a 20 ms wait time to give the display
-// module time to fully power up. Then the command is sent to set the LCD
-// module into the 4-bit mode.
+// Initialize the LCD display module. The first step is to initialize the associated I2C port.
+// Then there is a 20 ms wait time to give the display module time to fully power up. Then the
+// command is sent to set the LCD module into the 4-bit mode.
 void
 I2C_LCD_init( I2C_TypeDef *thisI2C )
 {
@@ -117,8 +119,8 @@ I2C_LCD_init( I2C_TypeDef *thisI2C )
 
 
 // I2C_LCD_cmd
-// Send command (not character) to LCD display. Commands are sent like data but
-// with the RS pin set LOW
+// Send command (not character) to LCD display. Commands are sent like data but with the RS pin
+// set LOW.
 void
 I2C_LCD_cmd( uint8_t data )
 {
@@ -162,10 +164,9 @@ I2C_LCD_putc( char data )
 }
 
 
-//  LCD_puts
-//  Takes a pointer to a null-terminated string and displays that string
-//  from the current LCD cursor position. Does not check for LCD line/string
-//  overflow.
+// LCD_puts
+// Takes a pointer to a null-terminated string and displays that string from the current LCD cursor
+// position. Does not check for LCD line/string overflow.
 void
 I2C_LCD_puts( char *data )
 {
