@@ -52,6 +52,13 @@
 // I2C_init
 // Initialize GPIO port B pins 6 and 7 for I2C1 for pins 10 and 11 for I2C2, and set up required I2C
 // clocks.
+//
+// NOTE: The port initializations in this routine will likely only work on STM32F103 variants that
+//       have two I2C interfaces. For varianats that only have I2C1, this should work for that
+//       interface. The code in this routine should be modified to work with other STM32 ICs.
+// NOTE: The timing settings assume an 8 MHz clock, running the I2C interface a the normal (slow)
+//       speed. These settings probably have to be changed if using different clock speeds or if
+//       faster I2C speeds are desired.
 void
 I2C_init( I2C_TypeDef *thisI2C )
 {
@@ -89,7 +96,6 @@ I2C_init( I2C_TypeDef *thisI2C )
                                          // F/S and DUTY bits are 0 as not using "fast mode" i2c.
   thisI2C->OAR1   = 0x4000;              // Probably not needed when you are the master
   thisI2C->CR1   |= I2C_CR1_PE;          // Turn on I2C peripheral
-  thisI2C->CR1   |= I2C_CR1_ACK;
 }
 
 
