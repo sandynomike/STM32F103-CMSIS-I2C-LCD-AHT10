@@ -206,15 +206,9 @@ I2C_read( I2C_TypeDef *thisI2C, uint8_t ack )
 
 // I2C_readByte
 // Command for host to request one byte from the target device at the specified address.
-void
-I2C_readByte( I2C_TypeDef *thisI2C, uint8_t *data,  uint8_t address )
+uint8_t
+I2C_readByte( I2C_TypeDef *thisI2C, uint8_t address )
 {
-//  I2C_start();                            // Start I2C sequence
-//  I2C_address( address, 1 );              // Poll address
-//  I2C_writeByte( reg, address );          // Send byte command indicating what data to read
-//  I2C_start();
-
-  // I2C_read( Address, data );
   
   thisI2C->CR1 |= I2C_CR1_START;            // Set the START bit
   while( !( thisI2C->SR1 & I2C_SR1_SB )) ;  // Wait for SB to be set
@@ -234,9 +228,10 @@ I2C_readByte( I2C_TypeDef *thisI2C, uint8_t *data,  uint8_t address )
    // Wait for data register to have data
    while( !( thisI2C->SR1 & (I2C_SR1_RXNE) )) ;
 
-  uint8_t keep = (thisI2C->DR & 0xFF);      // Read received data
+  uint8_t data = (thisI2C->DR & 0xFF);      // Read received data
   I2C_stop( thisI2C );
-  *data = keep;
+    
+  return data;                              // Return the received data
 }
 
 
