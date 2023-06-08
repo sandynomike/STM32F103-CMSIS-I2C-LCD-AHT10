@@ -114,6 +114,19 @@ I2C_start( I2C_TypeDef *thisI2C )
 }
 
 
+// I2C_stop
+// Command for host to STOP current I2C transfer. Waits for confirmation that the stop
+// bit was set before continuing.
+void
+I2C_stop( I2C_TypeDef *thisI2C )
+{
+  thisI2C->CR1 |= I2C_CR1_STOP;   // Set STOP bit in CR1 indicating end of I2C transmission and
+                                  // return to slave mode [EV8_2:2]
+
+  while( !( thisI2C->CR1 & I2C_CR1_STOP )) ;  // Wait for stop bit to be set
+}
+
+
 // I2C_address
 // Command for host to send the I2C address of the desired target device. Waits for target to
 // acknowledge.
@@ -157,33 +170,6 @@ I2C_write( I2C_TypeDef *thisI2C, uint8_t data )
 }
 
 
-// I2C_stop
-// Command for host to STOP current I2C transfer. Waits for confirmation that the stop
-// bit was set before continuing.
-void
-I2C_stop( I2C_TypeDef *thisI2C )
-{
-  thisI2C->CR1 |= I2C_CR1_STOP;   // Set STOP bit in CR1 indicating end of I2C transmission and
-                                  // return to slave mode [EV8_2:2]
-
-  while( !( thisI2C->CR1 & I2C_CR1_STOP )) ;  // Wait for stop bit to be set
-}
-
-
-// I2C_writeByte
-// Command for host to send one byte of data to the target device at the specified address.
-// Does a complete single byte send from starting I2C, sending address, sending the byte, then
-// stopping the I2C transfer.
-void
-I2C_writeByte( I2C_TypeDef *thisI2C, uint8_t data, uint8_t Address )
-{
-    I2C_start(   thisI2C );
-    I2C_address( thisI2C, Address, 0 );
-    I2C_write(   thisI2C, data );
-    I2C_stop(    thisI2C );
-}
-
-
 // I2C_read
 // Command for host to read a single byte. Does not include start or address or stop commands
 uint8_t
@@ -201,6 +187,20 @@ I2C_read( I2C_TypeDef *thisI2C, uint8_t ack )
     thisI2C->CR1 &= ~(I2C_CR1_ACK);               // send NACK
 
   return gotData;                                 // Return data to calling routine
+}
+
+
+// I2C_writeByte
+// Command for host to send one byte of data to the target device at the specified address.
+// Does a complete single byte send from starting I2C, sending address, sending the byte, then
+// stopping the I2C transfer.
+void
+I2C_writeByte( I2C_TypeDef *thisI2C, uint8_t data, uint8_t Address )
+{
+    I2C_start(   thisI2C );
+    I2C_address( thisI2C, Address, 0 );
+    I2C_write(   thisI2C, data );
+    I2C_stop(    thisI2C );
 }
 
 
