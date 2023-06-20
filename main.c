@@ -64,7 +64,7 @@ main()
   uint32_t tempV, humidV;           // Will hold raw temp and humidity values from sensor
   int16_t  realV;                   // Used in conversion from raw to real data
   
-  I2C_LCD_init( I2C1 );             // Set the LCD interface to I2C1 and initialize it
+  I2C_LCD_init( I2C2 );             // Set the LCD interface to I2C1 and initialize it
   I2C_LCD_cmd( LCD_4B_58F_2L );     // Get LCD into 4-bit mode
   I2C_LCD_cmd( LCD_ON_NO_CURSOR );  // LCD ON, Cursor OFF
   I2C_LCD_cmd( LCD_CLEAR );         // Clear the LCD screen

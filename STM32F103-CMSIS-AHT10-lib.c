@@ -178,7 +178,7 @@ delay_us(420);
 void
 i100toa( int16_t realV, char *thisString )
 {
-  char tmpString[2];              // Hold decimal digit and EOL character
+  char tmpString[6];              // Used to build output string. Might need to hold "-100\0"
 
   int16_t  x = abs( realV );      // realV = 2596 (target: 26.0C) -> x = 2596
   int16_t  w = x / 100;           // w (whole part) = 25
@@ -196,9 +196,12 @@ i100toa( int16_t realV, char *thisString )
     }
   }   
   if( realV < 0 )                 // Restore negative sign if original value was negative
-    w = 0 - w;
-    
-  itoa( w, thisString, 10 );        // Make whole part into string
+    strcpy( thisString, "-" );
+  else                            // otherwise start with blank string.
+    strcpy( thisString, "" );
+
+  itoa( w, tmpString, 10 );         // Make whole part into string
+  strcat( thisString, tmpString );  // Tack onto thisString
   strcat( thisString, "." );        // Add the decimal point
   itoa( d, tmpString, 10 );         // Make a string for the single decimal place
   strcat( thisString, tmpString );  // Tack on the decimal digit to the rest of the string
